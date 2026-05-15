@@ -1,0 +1,17 @@
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["__pycache__", "logs", ".venv", "venv"]
+
+[tool.ruff.lint]
+# Conservative ruleset: stylistic essentials only. Avoid rules that would
+# fight intentional patterns (e.g. sys.path manipulation in main.py).
+select = ["E", "F", "I", "W"]
+ignore = [
+    "E501",  # line length is enforced by formatter, not lint
+    "E402",  # module-level imports after sys.path manipulation in main.py
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["F401"]
+"main.py" = ["E402", "F401"]
