@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Data & Models
+*.pdf
+*.png
+*.jpg
+chroma_db/
+fine_tuned_model/
+*.bin
+*.safetensors
+
+# IDE & tooling
+.vscode/
+.idea/
+*.swp
+.claude/
+.codex
+*.local.json
+*.local.*
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

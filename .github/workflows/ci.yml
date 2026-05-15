@@ -1,0 +1,45 @@
+name: CI - Test & Lint
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      chromadb:
+        image: chromadb/chroma:0.5.0
+        ports:
+          - 8000:8000
+        env:
+          ANONYMIZED_TELEMETRY: "false"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Tesseract
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio ruff
+
+      - name: Lint backend
+        run: ruff check backend/
+
+      - name: Run backend tests
+        working-directory: backend
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          CHROMA_HOST: localhost
+          CHROMA_PORT: 8000
+        run: pytest tests/ -v --tb=short

@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  chromadb:
+    image: chromadb/chroma:0.5.0
+    container_name: omnimind-chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - ANONYMIZED_TELEMETRY=false
+      - IS_PERSISTENT=true
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: omnimind-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - PYTHONPATH=/app
+    depends_on:
+      - chromadb
+    volumes:
+      - ./backend:/app
+      - backend_logs:/app/logs
+    command: uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: omnimind-frontend
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      - BACKEND_URL=http://backend:8080
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+    restart: unless-stopped
+
+volumes:
+  chroma_data:
+  backend_logs:
